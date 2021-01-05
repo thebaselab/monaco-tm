@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "demo": "webpack-dev-server --config webpack.config.cjs --port 8084",
+    "build": "webpack --config webpack.config.cjs --progress && cp -R configurations dist/configurations && cp -R grammars dist/grammars && mkdir dist/node_modules && cp -R node_modules/vscode-oniguruma dist/node_modules/vscode-oniguruma && cp index.html dist/index.html",
     "release": "tsc"
   },
   "dependencies": {

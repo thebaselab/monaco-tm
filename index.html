@@ -2,10 +2,134 @@
 <html>
   <head>
     <title>Monaco TextMate Demo</title>
-    <link rel="stylesheet" href="./index.css" />
+    <link rel="stylesheet" href="index.css" />
   </head>
+  <style>
+      body { margin:0; }
+      #overlay {width: 0;height:0;position:absolute;}
+  </style>
   <body>
-    <div id="container"></div>
-    <script src="/app.bundle.js"></script>
+    <div tabindex="0" id="overlay"></div>
+    <div id="container" style="width: 100%; height: 100vh;"></div>
+    <script src="app.bundle.js"></script>
+    <script defer>
+        var states = {};
+
+        function applyListeners(instance){
+            
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.toggleMessageHandler) {
+                window.webkit.messageHandlers.toggleMessageHandler.postMessage({
+                    "Event": "Editor Initialising"
+                });
+            }
+
+            instance.onDidChangeCursorPosition((event) => {
+                var position = instance.getPosition();
+                // console.log(position)
+                var message = "Crusor Position changed";
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.toggleMessageHandler) {
+                    window.webkit.messageHandlers.toggleMessageHandler.postMessage({
+                        "Event": message,
+                        "Column": position.column,
+                        "lineNumber": position.lineNumber
+                    });
+                }
+            });
+
+            instance.onDidChangeModelContent((event) => {
+                var currentModel = instance.getModel();
+                var versionID = currentModel.getAlternativeVersionId();
+                var modelPath = currentModel._associatedResource._formatted;
+                var position = instance.getPosition();
+                var content = instance.getValue()
+
+                var message = "Content changed";
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.toggleMessageHandler) {
+                    window.webkit.messageHandlers.toggleMessageHandler.postMessage({
+                        "Event": message,
+                        "VersionID": versionID,
+                        "URI": modelPath,
+                        "currentContent": content
+                    });
+                }
+            });
+        }
+
+        function applyBase64AsTheme(string, themeName){
+            var decodedString = decodeURIComponent(escape(window.atob(string)));
+            var data = JSON.parse(decodedString);
+            monaco.editor.defineTheme(themeName, data);
+            monaco.editor.setTheme(themeName);
+        }
+
+        var lastOpenedURI = "";
+        var navi = null;
+
+        function switchToDiffView(originalContent, modifiedContent, url1, url2){
+            // lastOpenedURI = editor.getModel().uri.path.substring(1);
+            
+            var original = decodeURIComponent(escape(window.atob(originalContent)))
+            var modified = decodeURIComponent(escape(window.atob(modifiedContent)))
+            
+            var originalModel = null
+            var modifiedModel = null
+
+            if (monaco.editor.getModel(monaco.Uri.file(url1))){
+                originalModel = monaco.editor.getModel(monaco.Uri.file(url1))
+            }else{
+                originalModel = monaco.editor.createModel(original, undefined, monaco.Uri.file(url1));
+            }
+
+            if (monaco.editor.getModel(monaco.Uri.file(url2))){
+                modifiedModel = monaco.editor.getModel(monaco.Uri.file(url2))
+            }else{
+                modifiedModel = monaco.editor.createModel(modified, undefined, monaco.Uri.file(url2));
+            }
+            
+            editor.dispose();
+            editor = null;
+
+            editor = monaco.editor.createDiffEditor(document.getElementById("container"), {
+                // You can optionally disable the resizing
+                enableSplitViewResizing: false,
+                automaticLayout: true,
+
+                // Render the diff inline
+                renderSideBySide: true
+            });
+            navi = monaco.editor.createDiffNavigator(editor, {
+                followsCaret: true, // resets the navigator state when the user selects something in the editor
+                ignoreCharChanges: true // jump from line to line
+            });
+            editor.setModel({
+                original: originalModel,
+                modified: modifiedModel
+            });
+            applyListeners(editor.getOriginalEditor())
+            applyListeners(editor.getModifiedEditor())
+        }
+
+        function switchToNormalView(){
+            editor.dispose();
+            editor = null;
+            editor = monaco.editor.create(document.getElementById('container'), {theme: "vs-dark", automaticLayout: true});
+            editor.getModel().dispose();
+            applyListeners(editor)
+            // editor.setModel(monaco.editor.getModel(monaco.Uri.file(lastOpenedURI)));
+        }
+
+        function renameModel(oldURL, newURL){
+            var model1 = monaco.editor.getModel(monaco.Uri.file(oldURL));
+            var model2 = monaco.editor.createModel(model1.getValue(), undefined, monaco.Uri.file(newURL));
+
+            var cm2 = model2._commandManager;
+            var cm1 = model1._commandManager;
+
+            cm2.currentOpenStackElement = cm1.currentOpenStackElement;
+            cm2.past = cm1.past;
+            cm2.future = cm1.future;
+            model1.dispose();
+        }
+    </script>
   </body>
 </html>
