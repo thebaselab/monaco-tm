@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "demo": "webpack-dev-server --config webpack.config.cjs --port 8084",
-    "build": "webpack --config webpack.config.cjs --progress && cp -R configurations dist/configurations && cp -R grammars dist/grammars && mkdir dist/node_modules && cp -R node_modules/vscode-oniguruma dist/node_modules/vscode-oniguruma && cp index.html dist/index.html",
+    "build": "rm -r dist output || exit 0 && webpack --config webpack.config.cjs --progress && cp -R configurations dist/configurations && cp -R grammars dist/grammars && mkdir dist/node_modules && cp -R node_modules/vscode-oniguruma dist/node_modules/vscode-oniguruma && cp index.html dist/index.html && mkdir output && cp -R dist output/monaco-textmate.bundle && open output",
     "release": "tsc"
   },
   "dependencies": {
