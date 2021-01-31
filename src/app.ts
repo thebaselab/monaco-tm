@@ -19,7 +19,29 @@ import {registerLanguages} from './register';
 import {rehydrateRegexps} from './configuration';
 import VsCodeDarkTheme from './vs-dark-plus-theme';
 import VsCodeLightTheme from './vs-light-plus-theme';
-import {languagesDefinitions} from './languages'
+import {languagesDefinitions} from './languages';
+import 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
+import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
+import 'monaco-editor/esm/vs/language/html/monaco.contribution.js';
+import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
+
+MonacoEnvironment = {
+	getWorkerUrl: function (moduleId, label) {
+		if (label === 'json ') {
+			return './json.worker.bundle.js';
+		}
+		if (label === 'css' || label === 'scss' || label === 'less') {
+			return './css.worker.bundle.js';
+		}
+		if (label === 'html' || label === 'handlebars' || label === 'razor') {
+			return './html.worker.bundle.js';
+		}
+		if (label === 'typescript' || label === 'javascript') {
+			return './ts.worker.bundle.js';
+		}
+		return './editor.worker.bundle.js';
+	}
+};
 
 interface DemoScopeNameInfo extends ScopeNameInfo {
   path: string;
@@ -27,7 +49,7 @@ interface DemoScopeNameInfo extends ScopeNameInfo {
 
 (window as any).main = main;
 (window as any).changeTheme = changeTheme;
-
+(window as any).monaco = monaco;
 
 let provider: SimpleLanguageInfoProvider | undefined;
 
@@ -44,7 +66,7 @@ async function changeTheme(theme:string) {
   
 }
 
-main('python', 'vs-dark');
+main('json', 'vs-dark');
 
 async function main(language: LanguageId, theme: string) {
   // In this demo, the following values are hardcoded to support Python using
@@ -347,6 +369,7 @@ async function main(language: LanguageId, theme: string) {
     lineNumbersMinChars: 3, 
     contextmenu: true
   });
+  (window as any).applyListeners((window as any).editor);
   provider.injectCSS();
 }
 
