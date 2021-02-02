@@ -10,7 +10,7 @@
     "release": "tsc"
   },
   "dependencies": {
-    "monaco-editor": "^0.22.1",
+    "monaco-editor": "^0.22.3",
     "vscode-oniguruma": "1.3.0",
     "vscode-textmate": "5.2.0"
   },
