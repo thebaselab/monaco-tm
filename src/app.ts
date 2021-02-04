@@ -66,7 +66,7 @@ async function changeTheme(theme:string) {
   
 }
 
-main('json', 'vs-dark');
+main('python', 'vs-dark');
 
 async function main(language: LanguageId, theme: string) {
   // In this demo, the following values are hardcoded to support Python using
@@ -365,7 +365,7 @@ async function main(language: LanguageId, theme: string) {
     },
     automaticLayout: true, 
     glyphMargin: false, 
-    lineDecorationsWidth: 0, 
+    // lineDecorationsWidth: 3, 
     lineNumbersMinChars: 3, 
     contextmenu: true
   });
