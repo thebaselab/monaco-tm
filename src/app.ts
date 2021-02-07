@@ -66,7 +66,7 @@ async function changeTheme(theme:string) {
   
 }
 
-main('python', 'vs-dark');
+main('fortran-modern', 'vs-dark');
 
 async function main(language: LanguageId, theme: string) {
   // In this demo, the following values are hardcoded to support Python using
@@ -100,7 +100,7 @@ async function main(language: LanguageId, theme: string) {
     },
     'source.fortran.modern': {
       language: 'fortran-modern',
-      path: 'modern.tmLanguage.json',
+      path: 'fortran-modern.tmLanguage.json',
     },
     'source.yaml': {
       language: 'yaml',
