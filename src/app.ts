@@ -27,7 +27,7 @@ import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
 
 MonacoEnvironment = {
 	getWorkerUrl: function (moduleId, label) {
-		if (label === 'json ') {
+		if (label === 'json') {
 			return './json.worker.bundle.js';
 		}
 		if (label === 'css' || label === 'scss' || label === 'less') {
@@ -66,7 +66,7 @@ async function changeTheme(theme:string) {
   
 }
 
-main('fortran-modern', 'vs-dark');
+main('json', 'vs-dark');
 
 async function main(language: LanguageId, theme: string) {
   // In this demo, the following values are hardcoded to support Python using
