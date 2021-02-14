@@ -25,6 +25,22 @@ import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/html/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
 
+import { listen, MessageConnection, createMessageConnection } from 'vscode-ws-jsonrpc';
+import {
+  AbstractMessageReader,
+  DataCallback,
+} from "vscode-jsonrpc/lib/messageReader";
+import { AbstractMessageWriter } from "vscode-jsonrpc/lib/messageWriter";
+import { Message } from "vscode-jsonrpc/lib/messages";
+// import { MessageConnection } from 'vscode-jsonrpc';
+import {
+    MonacoLanguageClient, CloseAction, ErrorAction,
+    MonacoServices, createConnection
+} from 'monaco-languageclient';
+import { Socket } from 'dgram';
+const normalizeUrl = require('normalize-url');
+const ReconnectingWebSocket = require('reconnecting-websocket');
+
 MonacoEnvironment = {
 	getWorkerUrl: function (moduleId, label) {
 		if (label === 'json ') {
@@ -51,6 +67,181 @@ interface DemoScopeNameInfo extends ScopeNameInfo {
 (window as any).changeTheme = changeTheme;
 (window as any).monaco = monaco;
 
+MonacoServices.install(require('monaco-editor/esm/vs/platform/commands/common/commands').CommandsRegistry);
+
+// create the web socket
+// const url = createUrl('/py')
+// const webSocket = createWebSocket(url);
+const DEBUG = true;
+// listen when the web socket is opened
+// listen({
+//     webSocket,
+//     onConnection: connection => {
+//         // create and start the language client
+//         const languageClient = createLanguageClient(connection);
+//         const disposable = languageClient.start();
+//         connection.onClose(() => disposable.dispose());
+//     }
+// });
+
+class RijuMessageReader extends AbstractMessageReader {
+  state: "initial" | "listening" | "closed" = "initial";
+  callback: DataCallback | null = null;
+  messageQueue: any[] = [];
+  socket: WebSocket;
+
+  constructor(socket: WebSocket) {
+    super();
+    this.socket = socket;
+    this.socket.addEventListener("message", (event: MessageEvent) => {
+      this.readMessage(event.data);
+    });
+  }
+
+  listen(callback: DataCallback): void {
+    if (this.state === "initial") {
+      this.state = "listening";
+      this.callback = callback;
+      while (this.messageQueue.length > 0) {
+        this.readMessage(this.messageQueue.pop()!);
+      }
+    }
+  }
+
+  readMessage(rawMessage: string): void {
+    if (this.state === "initial") {
+      this.messageQueue.splice(0, 0, rawMessage);
+    } else if (this.state === "listening") {
+      let message: any;
+      try {
+        message = JSON.parse(rawMessage);
+      } catch (err) {
+        return;
+      }
+      if (DEBUG) {
+        console.log("RECEIVE LSP:", message.output);
+      }
+      this.callback!(message);
+    }
+  }
+}
+
+class RijuMessageWriter extends AbstractMessageWriter {
+  socket: WebSocket;
+
+  constructor(socket: WebSocket) {
+    super();
+    this.socket = socket;
+  }
+
+  write(msg: Message): void {
+    switch ((msg as any).method) {
+      case "initialize":
+        (msg as any).params.processId = null;
+        // if (config.lsp!.disableDynamicRegistration) {
+        //   this.disableDynamicRegistration(msg);
+        // }
+        break;
+      case "textDocument/didOpen":
+        // if (config.lsp!.lang) {
+        //   (msg as any).params.textDocument.languageId = config.lsp!.lang;
+        // }
+    }
+    if (DEBUG) {
+      console.log("SEND LSP:", msg);
+    }
+    this.socket.send(JSON.stringify(msg));
+  }
+
+  disableDynamicRegistration(msg: any) {
+    if (!msg || typeof msg !== "object") return;
+    for (const [key, val] of Object.entries(msg)) {
+      if (key === "dynamicRegistration" && val === true)
+        msg.dynamicRegistration = false;
+      this.disableDynamicRegistration(val);
+    }
+  }
+}
+
+const webSocket = new WebSocket('ws://localhost:8888')
+
+const connection = createMessageConnection(
+  new RijuMessageReader(webSocket),
+  new RijuMessageWriter(webSocket)
+);
+
+webSocket.addEventListener("open", () => {
+  console.log("Successfully connected to server");
+  const languageClient = createLanguageClient(connection);
+  const disposable = languageClient.start();
+  connection.onClose(() => disposable.dispose());
+});
+
+
+webSocket.addEventListener("message", (event: MessageEvent) => {
+  let message: any;
+  try {
+    message = JSON.parse(event.data);
+  } catch (err) {
+    console.error("Malformed message from server:", event.data);
+    return;
+  }
+  if (
+    DEBUG &&
+    message &&
+    message.event !== "lspOutput" &&
+    message.event !== "serviceLog"
+  ) {
+    console.log("RECEIVE:", message);
+  }
+  // switch (message && message.event) {
+  //   case "lspStarted":
+  //     const languageClient = createLanguageClient(connection);
+  //     const disposable = languageClient.start();
+  //     connection.onClose(() => disposable.dispose());
+  // }
+});
+
+
+function createLanguageClient(connection: MessageConnection): MonacoLanguageClient {
+    return new MonacoLanguageClient({
+        name: "Sample Language Client",
+        clientOptions: {
+            // use a language id as a document selector
+            documentSelector: ['python'],
+            // disable the default error handler
+            errorHandler: {
+                error: () => ErrorAction.Continue,
+                closed: () => CloseAction.DoNotRestart
+            }
+        },
+        // create a language client connection from the JSON RPC connection on demand
+        connectionProvider: {
+            get: (errorHandler, closeHandler) => {
+                return Promise.resolve(createConnection(connection, errorHandler, closeHandler))
+            }
+        }
+    });
+}
+
+function createUrl(path: string): string {
+    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+    return normalizeUrl(`${protocol}://localhost:3000${path}`);
+}
+
+function createWebSocket(url: string): WebSocket {
+    const socketOptions = {
+        maxReconnectionDelay: 10000,
+        minReconnectionDelay: 1000,
+        reconnectionDelayGrowFactor: 1.3,
+        connectionTimeout: 10000,
+        maxRetries: Infinity,
+        debug: false
+    };
+    return new ReconnectingWebSocket(url, [], socketOptions);
+}
+
+
 let provider: SimpleLanguageInfoProvider | undefined;
 
 async function changeTheme(theme:string) {
@@ -66,7 +257,7 @@ async function changeTheme(theme:string) {
   
 }
 
-main('fortran-modern', 'vs-dark');
+main('python', 'vs-dark');
 
 async function main(language: LanguageId, theme: string) {
   // In this demo, the following values are hardcoded to support Python using

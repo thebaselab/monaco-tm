@@ -3,6 +3,12 @@ const path = require('path');
 
 module.exports = {
   target: 'web',
+  node: {
+    fs: 'empty',
+    child_process: 'empty',
+    net: 'empty',
+    crypto: 'empty'
+  },
   entry: {
     app: './src/app.ts',
     // Package each language's worker and give these filenames in `getWorkerUrl`
@@ -18,6 +24,9 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
   },
   resolve: {
+    alias: {
+      'vscode': require.resolve('monaco-languageclient/lib/vscode-compatibility')
+    },
     extensions: ['.js', '.ts', '.tsx'],
   },
   module: {
