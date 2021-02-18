@@ -43,7 +43,7 @@ const ReconnectingWebSocket = require('reconnecting-websocket');
 
 MonacoEnvironment = {
 	getWorkerUrl: function (moduleId, label) {
-		if (label === 'json ') {
+		if (label === 'json') {
 			return './json.worker.bundle.js';
 		}
 		if (label === 'css' || label === 'scss' || label === 'less') {
