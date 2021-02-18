@@ -66,7 +66,7 @@ async function changeTheme(theme:string) {
   
 }
 
-main('json', 'vs-dark');
+main('python', 'vs-dark');
 
 async function main(language: LanguageId, theme: string) {
   // In this demo, the following values are hardcoded to support Python using
