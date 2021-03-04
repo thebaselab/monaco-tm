@@ -25,7 +25,7 @@ import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/html/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
 
-import { listen, MessageConnection, createMessageConnection } from 'vscode-ws-jsonrpc';
+import { MessageConnection, createMessageConnection } from 'vscode-ws-jsonrpc';
 import {
   AbstractMessageReader,
   DataCallback,
@@ -37,7 +37,6 @@ import {
     MonacoLanguageClient, CloseAction, ErrorAction,
     MonacoServices, createConnection
 } from 'monaco-languageclient';
-import { Socket } from 'dgram';
 const normalizeUrl = require('normalize-url');
 const ReconnectingWebSocket = require('reconnecting-websocket');
 
