@@ -21,15 +21,15 @@ import VsCodeDarkTheme from './vs-dark-plus-theme';
 import VsCodeLightTheme from './vs-light-plus-theme';
 import {languagesDefinitions} from './languages';
 import 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
-import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
+// import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/html/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
 
 MonacoEnvironment = {
 	getWorkerUrl: function (moduleId, label) {
-		if (label === 'json') {
-			return './json.worker.bundle.js';
-		}
+		// if (label === 'json') {
+		// 	return './json.worker.bundle.js';
+		// }
 		if (label === 'css' || label === 'scss' || label === 'less') {
 			return './css.worker.bundle.js';
 		}
@@ -50,15 +50,39 @@ interface DemoScopeNameInfo extends ScopeNameInfo {
 (window as any).main = main;
 (window as any).changeTheme = changeTheme;
 (window as any).monaco = monaco;
-
+(window as any).setTheme = setTheme;
 let provider: SimpleLanguageInfoProvider | undefined;
+
+async function setTheme(name: string, theme: any){
+  monaco.editor.defineTheme(name, {
+    base: theme.type == 'dark' ? 'vs-dark' : 'vs',
+    inherit: true,
+    rules: [{ foreground: theme.colors['editor.foreground'] ,background: theme.colors['editor.background'], token: "" }],
+    colors: theme.colors
+  });
+  monaco.editor.setTheme(name);
+
+  let themeData: any = {};
+
+  themeData.name = theme.name;
+  themeData.settings = theme.tokenColors;
+  themeData.settings.push({
+    "settings": {
+      "foreground": theme.colors['editor.foreground'],
+      "background": theme.colors['editor.background'],
+    }
+  });
+
+  provider!.registry.setTheme(themeData)
+  provider!.injectCSS()
+}
 
 async function changeTheme(theme:string) {
   if (theme == "vs-dark"){
     monaco.editor.setTheme("vs-dark")
     provider!.registry.setTheme(VsCodeDarkTheme)
     provider!.injectCSS()
-  }else{
+  }else if (theme == "vs"){
     monaco.editor.setTheme("vs")
     provider!.registry.setTheme(VsCodeLightTheme)
     provider!.injectCSS()
@@ -66,7 +90,7 @@ async function changeTheme(theme:string) {
   
 }
 
-main('python', 'vs-dark');
+main('json', 'vs-dark');
 
 async function main(language: LanguageId, theme: string) {
   // In this demo, the following values are hardcoded to support Python using
@@ -86,6 +110,10 @@ async function main(language: LanguageId, theme: string) {
   // change the call to main() above to pass your LanguageId.
   const languages: monaco.languages.ILanguageExtensionPoint[] = languagesDefinitions;
   const grammars: {[scopeName: string]: DemoScopeNameInfo} = {
+    'source.vue': {
+      language: 'vue',
+      path: 'vue-generated.json',
+    },
     'source.matlab': {
       language: 'matlab',
       path: 'matlab.tmLanguage.json',
@@ -389,22 +417,7 @@ async function loadVSCodeOnigurumWASM(): Promise<Response | ArrayBuffer> {
 
 function getSampleCodeForLanguage(language: LanguageId): string {
   if (language === 'json') {
-    return `\
-{
-  // a comment
-  "options": {
-    "myBool": true,
-    "myInteger": 1,
-    "myString": "String\u0056",
-    "myNumber": 1.24,
-    "myNull": null,
-    "myArray": [ 1, "Hello", true, null, [], {}],
-    "myObject" : {
-      "foo": "bar"
-    }
-  }
-}
-`;
+    return ``;
   }
 
   if (language === 'go') {

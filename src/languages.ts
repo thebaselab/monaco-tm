@@ -251,7 +251,7 @@ export const languagesDefinitions: monaco.languages.ILanguageExtensionPoint[] = 
     },
     {
         id: "json",
-        extensions: [ ".json, .bowerrc", ".jscsrc", ".js.map", ".css.map", ".ts.map", ".har", ".jslintrc", ".jsonld" ],
+        extensions: [ ".json", ".bowerrc", ".jscsrc", ".js.map", ".css.map", ".ts.map", ".har", ".jslintrc", ".jsonld" ],
         filenames: [ "composer.lock",".watchmanconfig",".ember-cli" ],
         mimetypes: [ "application/json", "application/json" ],
         aliases: [ "JSON", "json"]
@@ -629,5 +629,15 @@ export const languagesDefinitions: monaco.languages.ILanguageExtensionPoint[] = 
         extensions: [
           ".m"
         ]
+    },
+    {
+      id: "vue",
+      aliases: [
+        "Vue",
+        "vue"
+      ],
+      extensions: [
+        ".vue"
+      ]
     }
   ];

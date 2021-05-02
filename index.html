@@ -16,6 +16,71 @@
     <script src="app.bundle.js"></script>
     <script defer>
         var states = {};
+        
+        var customDarkTheme = null;
+        var customLightTheme = null;
+        var customDarkThemeName = null;
+        var customLightThemeName = null;
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            const newColorScheme = e.matches ? "dark" : "light";
+            
+            if (newColorScheme == "dark") {
+                if (customDarkTheme === null){
+                    changeTheme('vs-dark')
+                }else{
+                    setTheme(customDarkThemeName, customDarkTheme)
+                }
+            }else {
+                if (customLightTheme === null){
+                    changeTheme('vs')
+                }else{
+                    setTheme(customLightThemeName, customLightTheme)
+                }
+            }
+        });
+    
+        function updateTheme(){
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                if (customDarkTheme === null){
+                    changeTheme('vs-dark')
+                }else{
+                    setTheme(customDarkThemeName, customDarkTheme)
+                }
+            }else{
+                if (customLightTheme === null){
+                    changeTheme('vs')
+                }else{
+                    setTheme(customLightThemeName, customLightTheme)
+                }
+            }
+        }
+    
+        function resetTheme(isDark){
+            if (isDark){
+                customDarkTheme = null;
+                customLightThemeName = null;
+            }else{
+                customLightTheme = null;
+                customLightThemeName = null;
+            }
+            updateTheme()
+        }
+
+        function applyBase64AsTheme(string, themeName, isDark){
+            var decodedString = decodeURIComponent(escape(window.atob(string)));
+            var data = JSON.parse(decodedString);
+            
+            if (isDark) {
+                customDarkTheme = data;
+                customDarkThemeName = themeName;
+            }else{
+                customLightTheme = data;
+                customLightThemeName = themeName;
+            }
+            
+            updateTheme()
+        }
 
         function applyListeners(instance){
             
@@ -55,13 +120,16 @@
                     });
                 }
             });
-        }
-
-        function applyBase64AsTheme(string, themeName){
-            var decodedString = decodeURIComponent(escape(window.atob(string)));
-            var data = JSON.parse(decodedString);
-            monaco.editor.defineTheme(themeName, data);
-            monaco.editor.setTheme(themeName);
+            
+            monaco.editor.onDidChangeMarkers((markers) => {
+                var message = "Markers updated";
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.toggleMessageHandler) {
+                    window.webkit.messageHandlers.toggleMessageHandler.postMessage({
+                        "Event": message,
+                        "Markers": monaco.editor.getModelMarkers()
+                    });
+                }
+            });
         }
 
         var lastOpenedURI = "";
@@ -76,16 +144,16 @@
             var originalModel = null
             var modifiedModel = null
 
-            if (monaco.editor.getModel(monaco.Uri.file(url1))){
-                originalModel = monaco.editor.getModel(monaco.Uri.file(url1))
+            if (monaco.editor.getModel(monaco.Uri.parse(url1))){
+                originalModel = monaco.editor.getModel(monaco.Uri.parse(url1))
             }else{
-                originalModel = monaco.editor.createModel(original, undefined, monaco.Uri.file(url1));
+                originalModel = monaco.editor.createModel(original, undefined, monaco.Uri.parse(url1));
             }
 
-            if (monaco.editor.getModel(monaco.Uri.file(url2))){
-                modifiedModel = monaco.editor.getModel(monaco.Uri.file(url2))
+            if (monaco.editor.getModel(monaco.Uri.parse(url2))){
+                modifiedModel = monaco.editor.getModel(monaco.Uri.parse(url2))
             }else{
-                modifiedModel = monaco.editor.createModel(modified, undefined, monaco.Uri.file(url2));
+                modifiedModel = monaco.editor.createModel(modified, undefined, monaco.Uri.parse(url2));
             }
             
             editor.dispose();
@@ -117,12 +185,12 @@
             editor = monaco.editor.create(document.getElementById('container'), {theme: "vs-dark", automaticLayout: true});
             editor.getModel().dispose();
             applyListeners(editor)
-            // editor.setModel(monaco.editor.getModel(monaco.Uri.file(lastOpenedURI)));
+            // editor.setModel(monaco.editor.getModel(monaco.Uri.parse(lastOpenedURI)));
         }
 
         function renameModel(oldURL, newURL){
-            var model1 = monaco.editor.getModel(monaco.Uri.file(oldURL));
-            var model2 = monaco.editor.createModel(model1.getValue(), undefined, monaco.Uri.file(newURL));
+            var model1 = monaco.editor.getModel(monaco.Uri.parse(oldURL));
+            var model2 = monaco.editor.createModel(model1.getValue(), undefined, monaco.Uri.parse(newURL));
 
             var cm2 = model2._commandManager;
             var cm1 = model1._commandManager;
