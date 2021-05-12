@@ -17,6 +17,9 @@ const REGEXP_PROPERTIES = [
 
   // language's "word definition"
   'wordPattern',
+
+  // on enter actions
+  'onEnterRules.0.beforeText'
 ];
 
 /**
