@@ -26,7 +26,7 @@ import 'monaco-editor/esm/vs/language/html/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
 
 MonacoEnvironment = {
-	getWorkerUrl: function (moduleId, label) {
+	getWorkerUrl: function (moduleId: any, label: String) {
 		// if (label === 'json') {
 		// 	return './json.worker.bundle.js';
 		// }
@@ -51,6 +51,8 @@ interface DemoScopeNameInfo extends ScopeNameInfo {
 (window as any).changeTheme = changeTheme;
 (window as any).monaco = monaco;
 (window as any).setTheme = setTheme;
+
+main('json', 'vs-dark');
 let provider: SimpleLanguageInfoProvider | undefined;
 
 async function setTheme(name: string, theme: any){
@@ -89,8 +91,6 @@ async function changeTheme(theme:string) {
   }
   
 }
-
-main('json', 'vs-dark');
 
 async function main(language: LanguageId, theme: string) {
   // In this demo, the following values are hardcoded to support Python using
@@ -383,7 +383,7 @@ async function main(language: LanguageId, theme: string) {
     throw Error(`could not find element #${id}`);
   }
 
-  (window as any).editor = monaco.editor.create(element, {
+  const mainEditor = monaco.editor.create(element, {
     value: value,
     language: language,
     theme: theme,
@@ -397,8 +397,22 @@ async function main(language: LanguageId, theme: string) {
     lineNumbersMinChars: 3, 
     contextmenu: true
   });
+
+  (window as any).editor = mainEditor;
   (window as any).applyListeners((window as any).editor);
   provider.injectCSS();
+
+  // mainEditor.deltaDecorations([], [{range: new monaco.Range(2,0,4,0), options: {isWholeLine: false, linesDecorationsClassName: 'myLineDecoration'}}])
+  // mainEditor.onMouseDown((e) => {
+  //   let className = e.target.element?.className;
+  //   if (className === undefined){
+  //     return;
+  //   }
+
+  //   if (className.includes("myLineDecoration")){
+
+  //   }
+  // })
 }
 
 // Taken from https://github.com/microsoft/vscode/blob/829230a5a83768a3494ebbc61144e7cde9105c73/src/vs/workbench/services/textMate/browser/textMateService.ts#L33-L40

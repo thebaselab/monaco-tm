@@ -3,12 +3,32 @@
   <head>
     <title>Monaco TextMate Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <link rel="stylesheet" href="index.css" />
     <meta charset="UTF-8" />
   </head>
   <style>
       body { margin:0; }
       #overlay {width: 0;height:0;position:absolute;}
+      .addedBackground, .deletedBackground, .modifiedBackground {
+          width: 3px !important;
+          margin-left: 6px;
+          transform: translate(-50%, 0);
+          transition: 0.1s;
+        }
+    .addedBackground {
+        background: rgb(129, 184, 139);
+    }
+    .deletedBackground {
+        background: rgb(202, 75, 81);
+    }
+    .modifiedBackground {
+        background: rgb(102, 175, 224);
+    }
+    .addedBackground:hover, .deletedBackground:hover, .modifiedBackground:hover {width: 5px !important;}
+    @media (prefers-color-scheme: dark) {
+        .addedBackground {background:rgb(88, 124, 12)};
+        .deletedBackground {background:rgb(148, 21, 27)};
+        .modifiedBackground {background:rgb(12, 125, 157)};
+    }
   </style>
   <body>
     <div tabindex="0" id="overlay"></div>
@@ -21,7 +41,8 @@
         var customLightTheme = null;
         var customDarkThemeName = null;
         var customLightThemeName = null;
-        
+        var previousDecoration = [];
+
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
             const newColorScheme = e.matches ? "dark" : "light";
             
@@ -39,7 +60,82 @@
                 }
             }
         });
+        
+        function getChangeType(change) {
+            if (change.originalEndLineNumber === 0) {
+                return "added"; // Add
+            } else if (change.modifiedEndLineNumber === 0) {
+                return "deleted"; // Delete
+            } else {
+                return "modified"; // Modify
+            }
+        }
+        
+        function invalidateDecorations(){
+            previousDecoration = editor.deltaDecorations(previousDecoration, []);
+        }
     
+        function provideOriginalTextForUri(uri, value){
+
+            var decodedContent = decodeURIComponent(escape(window.atob(value)));
+
+            var originalUri = monaco.Uri.parse("original://" + uri);
+
+            if (monaco.editor.getModel(originalUri)){
+                monaco.editor.getModel(originalUri).setValue(decodedContent);
+            }else{
+                monaco.editor.createModel(decodedContent, undefined, originalUri);
+            }
+            
+            monaco.editor.computeDirtyDiff("original://" + uri, uri, true).then (
+                function(result){
+                    var changes = result;
+                    var jsonChanges = [];
+                    for (const x in changes){
+                        var change = changes[x];
+                        var decoration = {};
+
+                        const startLineNumber = change.modifiedStartLineNumber;
+                        const endLineNumber = change.modifiedEndLineNumber || startLineNumber;
+
+                        switch (getChangeType(change)){
+                            case "modified":
+                                decoration = {
+                                    range: new monaco.Range(startLineNumber,1,endLineNumber,1),
+                                    options: { isWholeLine: true,
+                                        linesDecorationsClassName: "modifiedBackground",
+                                        minimap: {color: "rgba(102, 175, 224)", darkColor: "rgba(12, 125, 157)", position: 1 }
+                                    }
+                                        // Position: 1 - Inline, 2 - Gutter
+                                }
+                                break;
+                            case "added":
+                                decoration = {
+                                    range: new monaco.Range(startLineNumber,1,endLineNumber,1),
+                                    options: { isWholeLine: true, linesDecorationsClassName: "addedBackground"},
+                                    minimap: {color: "rgba(129, 184, 139)", darkColor: "rgba(88, 124, 12)", position: 1 }
+                                }
+                                break;
+                            case "deleted":
+                                decoration = {
+                                    range: new monaco.Range(startLineNumber,Number.MAX_VALUE,endLineNumber,Number.MAX_VALUE),
+                                    options: { isWholeLine: false, linesDecorationsClassName: "deletedBackground"},
+                                    minimap: {color: "rgba(202, 75, 81)", darkColor: "rgba(148, 21, 27)", position: 1 }
+                                }
+                                break;
+                        }
+                        jsonChanges.push(decoration)
+                    }
+                    console.log(jsonChanges);
+                    previousDecoration = editor.deltaDecorations(previousDecoration, jsonChanges);
+                },
+                function(error){
+                    console.log(error);
+                }
+            )
+
+        }
+
         function updateTheme(){
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 if (customDarkTheme === null){
@@ -78,7 +174,6 @@
                 customLightTheme = data;
                 customLightThemeName = themeName;
             }
-            
             updateTheme()
         }
 
@@ -89,6 +184,23 @@
                     "Event": "Editor Initialising"
                 });
             }
+
+            instance.onDidChangeModel((event) => {
+                var currentModel = instance.getModel();
+                var modelPath = currentModel._associatedResource._formatted;
+                
+                window.webkit.messageHandlers.toggleMessageHandler.postMessage({
+                    "Event": "Request Diff Update",
+                    "URI": modelPath
+                });
+
+                var position = instance.getPosition();
+                window.webkit.messageHandlers.toggleMessageHandler.postMessage({
+                    "Event": "Crusor Position changed",
+                    "Column": position.column,
+                    "lineNumber": position.lineNumber
+                });
+            })
 
             instance.onDidChangeCursorPosition((event) => {
                 var position = instance.getPosition();
@@ -138,11 +250,11 @@
         function switchToDiffView(originalContent, modifiedContent, url1, url2){
             // lastOpenedURI = editor.getModel().uri.path.substring(1);
             
-            var original = decodeURIComponent(escape(window.atob(originalContent)))
-            var modified = decodeURIComponent(escape(window.atob(modifiedContent)))
+            var original = decodeURIComponent(escape(window.atob(originalContent)));
+            var modified = decodeURIComponent(escape(window.atob(modifiedContent)));
             
-            var originalModel = null
-            var modifiedModel = null
+            var originalModel = null;
+            var modifiedModel = null;
 
             if (monaco.editor.getModel(monaco.Uri.parse(url1))){
                 originalModel = monaco.editor.getModel(monaco.Uri.parse(url1))
@@ -203,3 +315,4 @@
     </script>
   </body>
 </html>
+
