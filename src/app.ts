@@ -339,7 +339,7 @@ async function main(language: LanguageId, theme: string) {
   const fetchGrammar = async (scopeName: ScopeName): Promise<TextMateGrammar> => {
     const {path} = grammars[scopeName];
     const uri = `/grammars/${path}`;
-    const response = await fetch(uri);
+    const response = await fetchWrapper(uri);
     const grammar = await response.text();
     const type = path.endsWith('.json') ? 'json' : 'plist';
     return {type, grammar};
@@ -349,7 +349,7 @@ async function main(language: LanguageId, theme: string) {
     language: LanguageId,
   ): Promise<monaco.languages.LanguageConfiguration> => {
     const uri = `/configurations/${language}.json`;
-    const response = await fetch(uri);
+    const response = await fetchWrapper(uri);
     const rawConfiguration = await response.text();
     return rehydrateRegexps(rawConfiguration);
   };
@@ -401,23 +401,23 @@ async function main(language: LanguageId, theme: string) {
   (window as any).editor = mainEditor;
   (window as any).applyListeners((window as any).editor);
   provider.injectCSS();
+}
 
-  // mainEditor.deltaDecorations([], [{range: new monaco.Range(2,0,4,0), options: {isWholeLine: false, linesDecorationsClassName: 'myLineDecoration'}}])
-  // mainEditor.onMouseDown((e) => {
-  //   let className = e.target.element?.className;
-  //   if (className === undefined){
-  //     return;
-  //   }
-
-  //   if (className.includes("myLineDecoration")){
-
-  //   }
-  // })
+// For WKWebView on iOS, we need to load the wasm binary from the bundle
+function fetchWrapper(input: RequestInfo, init?: RequestInit | undefined): Promise<Response> {
+  if(navigator.userAgent.indexOf("CodeApp") !== -1 && typeof input === 'string') {
+    const href = window.location.href;
+    const base = href.substr(0, href.lastIndexOf('/') + 1);
+    const path = base + input;
+    return fetch(path, init);
+  }else{
+    return fetch(input, init);
+  }
 }
 
 // Taken from https://github.com/microsoft/vscode/blob/829230a5a83768a3494ebbc61144e7cde9105c73/src/vs/workbench/services/textMate/browser/textMateService.ts#L33-L40
 async function loadVSCodeOnigurumWASM(): Promise<Response | ArrayBuffer> {
-  const response = await fetch('/node_modules/vscode-oniguruma/release/onig.wasm');
+  const response = await fetchWrapper('/node_modules/vscode-oniguruma/release/onig.wasm');
   const contentType = response.headers.get('content-type');
   if (contentType === 'application/wasm') {
     return response;
@@ -642,6 +642,23 @@ a:active {
 color: teal;
 }
 `;
+  }
+
+  if (language === 'php') {
+    return `\
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>My first PHP page</h1>
+
+<?php
+echo "Hello World!";
+?>
+
+</body>
+</html>
+    `
   }
 
   if (language === 'bat') {
