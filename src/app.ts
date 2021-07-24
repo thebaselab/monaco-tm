@@ -24,6 +24,7 @@ import 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
 // import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/html/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
+import { emmetHTML, emmetCSS, emmetJSX } from "emmet-monaco-es";
 
 MonacoEnvironment = {
 	getWorkerUrl: function (moduleId: any, label: String) {
@@ -52,7 +53,11 @@ interface DemoScopeNameInfo extends ScopeNameInfo {
 (window as any).monaco = monaco;
 (window as any).setTheme = setTheme;
 
+emmetHTML();
+emmetCSS();
+emmetJSX();
 main('json', 'vs-dark');
+
 let provider: SimpleLanguageInfoProvider | undefined;
 
 async function setTheme(name: string, theme: any){

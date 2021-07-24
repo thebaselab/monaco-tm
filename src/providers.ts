@@ -176,6 +176,19 @@ class TokensProviderCache {
         const {tokens, ruleStack: endState} = tokenizeLineResult2;
         return {tokens, endState};
       },
+
+      tokenize(
+        line: string,
+        state: monaco.languages.IState,
+      ): monaco.languages.ILineTokens {
+        const tokenizeLineResult = grammar.tokenizeLine(line, state as StackElement);
+        const {tokens, ruleStack: endState} = tokenizeLineResult;
+        const monacoTokens: monaco.languages.IToken[] = tokens.map(token => ({
+          startIndex: token.startIndex,
+          scopes: token.scopes[0]
+        }));
+        return {tokens: monacoTokens, endState: endState};
+      }
     };
   }
 
