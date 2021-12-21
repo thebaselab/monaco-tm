@@ -639,5 +639,27 @@ export const languagesDefinitions: monaco.languages.ILanguageExtensionPoint[] = 
       extensions: [
         ".vue"
       ]
+    },
+    {
+      id: "terraform",
+      aliases: [
+        "Terraform",
+        "terraform"
+      ],
+      extensions: [
+        ".tf"
+      ]
+    },
+    {
+      id: "terraform-vars",
+      extensions: [
+        ".tfvars"
+      ]
+    },
+    {
+      id: "json",
+      extensions: [
+        ".tfstate"
+      ]
     }
   ];

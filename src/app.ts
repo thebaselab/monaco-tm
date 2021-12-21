@@ -115,6 +115,10 @@ async function main(language: LanguageId, theme: string) {
   // change the call to main() above to pass your LanguageId.
   const languages: monaco.languages.ILanguageExtensionPoint[] = languagesDefinitions;
   const grammars: {[scopeName: string]: DemoScopeNameInfo} = {
+    'scope.terraform': {
+      language: 'terraform',
+      path: 'terraform.tmGrammar.json',
+    },
     'source.vue': {
       language: 'vue',
       path: 'vue-generated.json',
