@@ -5,9 +5,9 @@ import type {LanguageId, LanguageInfo} from './register';
 
 import {INITIAL, Registry, parseRawGrammar} from 'vscode-textmate';
 // @ts-ignore
-import {generateTokensCSSForColorMap} from 'monaco-editor/esm/vs/editor/common/modes/supports/tokenization.js';
+import {generateTokensCSSForColorMap} from 'monaco-editor/esm/vs/editor/common/languages/supports/tokenization.js';
 // @ts-ignore
-import {TokenizationRegistry} from 'monaco-editor/esm/vs/editor/common/modes.js';
+import {TokenizationRegistry} from 'monaco-editor/esm/vs/editor/common/languages.js';
 // @ts-ignore
 import {Color} from 'monaco-editor/esm/vs/base/common/color.js';
 

@@ -20,6 +20,11 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts', '.tsx'],
   },
+  devServer: {
+    static: {
+      directory: __dirname
+    }
+  },
   module: {
     rules: [
       {
