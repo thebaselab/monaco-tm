@@ -396,15 +396,16 @@ async function main(language: LanguageId, theme: string) {
     value: value,
     language: language,
     theme: theme,
-    // theme: 'vs',
     minimap: {
       enabled: true,
     },
     automaticLayout: true, 
-    glyphMargin: false, 
-    // lineDecorationsWidth: 3, 
+    glyphMargin: false,
     lineNumbersMinChars: 3, 
-    contextmenu: true
+    contextmenu: true,
+    unicodeHighlight: {
+      ambiguousCharacters: false
+    }
   });
 
   (window as any).editor = mainEditor;
