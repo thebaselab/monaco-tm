@@ -348,6 +348,10 @@ async function main(language: LanguageId, theme: string) {
       language: 'bat',
       path: 'batchfile.tmLanguage.json',
     },
+    'source.julia': {
+      language: 'julia',
+      path: 'julia.tmLanguage.json',
+    },
   };
 
   const fetchGrammar = async (scopeName: ScopeName): Promise<TextMateGrammar> => {
