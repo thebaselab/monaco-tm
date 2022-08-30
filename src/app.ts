@@ -24,24 +24,24 @@ import 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
 // import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/html/monaco.contribution.js';
 import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
-import { emmetHTML, emmetCSS, emmetJSX } from "emmet-monaco-es";
+import {emmetHTML, emmetCSS, emmetJSX} from 'emmet-monaco-es';
 
 MonacoEnvironment = {
-	getWorkerUrl: function (moduleId: any, label: String) {
-		// if (label === 'json') {
-		// 	return './json.worker.bundle.js';
-		// }
-		if (label === 'css' || label === 'scss' || label === 'less') {
-			return './css.worker.bundle.js';
-		}
-		if (label === 'html' || label === 'handlebars' || label === 'razor') {
-			return './html.worker.bundle.js';
-		}
-		if (label === 'typescript' || label === 'javascript') {
-			return './ts.worker.bundle.js';
-		}
-		return './editor.worker.bundle.js';
-	}
+  getWorkerUrl: function (moduleId: any, label: String) {
+    // if (label === 'json') {
+    // 	return './json.worker.bundle.js';
+    // }
+    if (label === 'css' || label === 'scss' || label === 'less') {
+      return './css.worker.bundle.js';
+    }
+    if (label === 'html' || label === 'handlebars' || label === 'razor') {
+      return './html.worker.bundle.js';
+    }
+    if (label === 'typescript' || label === 'javascript') {
+      return './ts.worker.bundle.js';
+    }
+    return './editor.worker.bundle.js';
+  },
 };
 
 interface DemoScopeNameInfo extends ScopeNameInfo {
@@ -60,12 +60,18 @@ main('json', 'vs-dark');
 
 let provider: SimpleLanguageInfoProvider | undefined;
 
-async function setTheme(name: string, theme: any){
+async function setTheme(name: string, theme: any) {
   monaco.editor.defineTheme(name, {
     base: theme.type == 'dark' ? 'vs-dark' : 'vs',
     inherit: true,
-    rules: [{ foreground: theme.colors['editor.foreground'] ,background: theme.colors['editor.background'], token: "" }],
-    colors: theme.colors
+    rules: [
+      {
+        foreground: theme.colors['editor.foreground'],
+        background: theme.colors['editor.background'],
+        token: '',
+      },
+    ],
+    colors: theme.colors,
   });
   monaco.editor.setTheme(name);
 
@@ -74,27 +80,26 @@ async function setTheme(name: string, theme: any){
   themeData.name = theme.name;
   themeData.settings = theme.tokenColors;
   themeData.settings.push({
-    "settings": {
-      "foreground": theme.colors['editor.foreground'],
-      "background": theme.colors['editor.background'],
-    }
+    settings: {
+      foreground: theme.colors['editor.foreground'],
+      background: theme.colors['editor.background'],
+    },
   });
 
-  provider!.registry.setTheme(themeData)
-  provider!.injectCSS()
+  provider!.registry.setTheme(themeData);
+  provider!.injectCSS();
 }
 
-async function changeTheme(theme:string) {
-  if (theme == "vs-dark"){
-    monaco.editor.setTheme("vs-dark")
-    provider!.registry.setTheme(VsCodeDarkTheme)
-    provider!.injectCSS()
-  }else if (theme == "vs"){
-    monaco.editor.setTheme("vs")
-    provider!.registry.setTheme(VsCodeLightTheme)
-    provider!.injectCSS()
+async function changeTheme(theme: string) {
+  if (theme == 'vs-dark') {
+    monaco.editor.setTheme('vs-dark');
+    provider!.registry.setTheme(VsCodeDarkTheme);
+    provider!.injectCSS();
+  } else if (theme == 'vs') {
+    monaco.editor.setTheme('vs');
+    provider!.registry.setTheme(VsCodeLightTheme);
+    provider!.injectCSS();
   }
-  
 }
 
 async function main(language: LanguageId, theme: string) {
@@ -305,7 +310,7 @@ async function main(language: LanguageId, theme: string) {
     },
     'source.clojure': {
       language: 'clojure',
-      path: 'clojure.tmLanguage.json'
+      path: 'clojure.tmLanguage.json',
     },
     'text.html.basic': {
       language: 'html',
@@ -333,16 +338,16 @@ async function main(language: LanguageId, theme: string) {
     },
     'documentation.injection.js.jsx': {
       language: 'jsonc',
-      path: 'jsonc.js.injection.tmLanguage.json'
+      path: 'jsonc.js.injection.tmLanguage.json',
     },
     'documentation.injection.ts.tsx': {
       language: 'jsonc',
-      path: 'jsonc.ts.injection.tmLanguage.json'
+      path: 'jsonc.ts.injection.tmLanguage.json',
     },
     'source.batchfile': {
       language: 'bat',
-      path: 'batchfile.tmLanguage.json'
-    }
+      path: 'batchfile.tmLanguage.json',
+    },
   };
 
   const fetchGrammar = async (scopeName: ScopeName): Promise<TextMateGrammar> => {
@@ -363,7 +368,7 @@ async function main(language: LanguageId, theme: string) {
     return rehydrateRegexps(rawConfiguration);
   };
   const data: ArrayBuffer | Response = await loadVSCodeOnigurumWASM();
-  loadWASM(data); 
+  loadWASM(data);
   const onigLib = Promise.resolve({
     createOnigScanner,
     createOnigString,
@@ -375,7 +380,7 @@ async function main(language: LanguageId, theme: string) {
     configurations: languages.map((language) => language.id),
     fetchConfiguration,
     // theme: VsCodeLightTheme,
-    theme: ((theme == "vs-dark") ? VsCodeDarkTheme : VsCodeLightTheme),
+    theme: theme == 'vs-dark' ? VsCodeDarkTheme : VsCodeLightTheme,
     onigLib,
     monaco,
   });
@@ -399,13 +404,13 @@ async function main(language: LanguageId, theme: string) {
     minimap: {
       enabled: true,
     },
-    automaticLayout: true, 
+    automaticLayout: true,
     glyphMargin: false,
-    lineNumbersMinChars: 3, 
+    lineNumbersMinChars: 3,
     contextmenu: true,
     unicodeHighlight: {
-      ambiguousCharacters: false
-    }
+      ambiguousCharacters: false,
+    },
   });
 
   (window as any).editor = mainEditor;
@@ -415,12 +420,12 @@ async function main(language: LanguageId, theme: string) {
 
 // For WKWebView on iOS, we need to load the wasm binary from the bundle
 function fetchWrapper(input: RequestInfo, init?: RequestInit | undefined): Promise<Response> {
-  if(navigator.userAgent.indexOf("CodeApp") !== -1 && typeof input === 'string') {
+  if (navigator.userAgent.indexOf('CodeApp') !== -1 && typeof input === 'string') {
     const href = window.location.href;
     const base = href.substr(0, href.lastIndexOf('/') + 1);
     const path = base + input;
     return fetch(path, init);
-  }else{
+  } else {
     return fetch(input, init);
   }
 }
@@ -545,7 +550,6 @@ ONBUILD RUN bash -c "source $KRE_USER_HOME/kvm/kvm.sh \
 `;
   }
 
-
   if (language === 'python') {
     return `\
 import foo
@@ -668,7 +672,7 @@ echo "Hello World!";
 
 </body>
 </html>
-    `
+    `;
   }
 
   if (language === 'bat') {
@@ -821,5 +825,5 @@ var game = new Conway.GameOfLife();
 `;
   }
 
-  return ``
+  return ``;
 }

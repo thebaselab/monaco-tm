@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "emmet-monaco-es": "^4.7.0",
-    "monaco-editor": "git://github.com/thebaselab/monaco-editor-release.git#bc1821ec694ccc57f7191fd4d2fb68648ad0e125",
+    "monaco-editor": "https://github.com/thebaselab/monaco-editor-release#db5010dfc38d8229a7ba374f94b83a9138831f45",
     "vscode-oniguruma": "1.5.1",
-    "vscode-textmate": "6.0.0"
+    "vscode-textmate": "7.0.1"
   },
   "devDependencies": {
     "css-loader": "5.2.7",
