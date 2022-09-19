@@ -56,7 +56,7 @@ interface DemoScopeNameInfo extends ScopeNameInfo {
 emmetHTML();
 emmetCSS();
 emmetJSX();
-main('json', 'vs-dark');
+main('svelte', 'vs-dark');
 
 let provider: SimpleLanguageInfoProvider | undefined;
 
@@ -351,6 +351,10 @@ async function main(language: LanguageId, theme: string) {
     'source.julia': {
       language: 'julia',
       path: 'julia.tmLanguage.json',
+    },
+    'source.svelte': {
+      language: 'svelte',
+      path: 'svelte.tmLanguage.json',
     },
   };
 

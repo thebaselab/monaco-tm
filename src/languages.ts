@@ -524,4 +524,9 @@ export const languagesDefinitions: monaco.languages.ILanguageExtensionPoint[] = 
     extensions: ['.jl'],
     firstLine: '^#!\\s*/.*\\bjulia[0-9.-]*\\b',
   },
+  {
+    id: 'svelte',
+    aliases: ['Svelte', 'svelte'],
+    extensions: ['.svelte'],
+  },
 ];
