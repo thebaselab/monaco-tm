@@ -1,5 +1,250 @@
+import {ScopeNameInfo} from './providers';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-export const languagesDefinitions: monaco.languages.ILanguageExtensionPoint[] = [
+
+export interface DemoScopeNameInfo extends ScopeNameInfo {
+  path: string;
+}
+
+export const BUILT_IN_GRAMMARS: {[scopeName: string]: DemoScopeNameInfo} = {
+  'scope.terraform': {
+    language: 'terraform',
+    path: 'terraform.tmGrammar.json',
+  },
+  'source.vue': {
+    language: 'vue',
+    path: 'vue-generated.json',
+  },
+  'source.matlab': {
+    language: 'matlab',
+    path: 'matlab.tmLanguage.json',
+  },
+  'source.dart': {
+    language: 'dart',
+    path: 'dart.tmLanguage.json',
+  },
+  'source.fortran': {
+    language: 'fortran',
+    path: 'fortran.tmLanguage.json',
+  },
+  'source.fortran.modern': {
+    language: 'fortran-modern',
+    path: 'fortran-modern.tmLanguage.json',
+  },
+  'source.yaml': {
+    language: 'yaml',
+    path: 'yaml.tmLanguage.json',
+  },
+  'text.xml': {
+    language: 'xml',
+    path: 'xml.tmLanguage.json',
+  },
+  'text.xml.xsl': {
+    language: 'xsl',
+    path: 'xsl.tmLanguage.json',
+  },
+  'source.asp.vb.net': {
+    language: 'vb',
+    path: 'asp-vb-net.tmLanguage.json',
+  },
+  'source.swift': {
+    language: 'swift',
+    path: 'swift.tmLanguage.json',
+  },
+  'source.shell': {
+    language: 'shellscript',
+    path: 'shell-unix-bash.tmLanguage.json',
+  },
+  'source.shaderlab': {
+    language: 'shaderlab',
+    path: 'shaderlab.tmLanguage.json',
+  },
+  'source.sql': {
+    language: 'sql',
+    path: 'sql.tmLanguage.json',
+  },
+  'source.css.scss': {
+    language: 'scss',
+    path: 'scss.tmLanguage.json',
+  },
+  'source.rust': {
+    language: 'rust',
+    path: 'rust.tmLanguage.json',
+  },
+  'source.ruby': {
+    language: 'ruby',
+    path: 'ruby.tmLanguage.json',
+  },
+  'text.html.cshtml': {
+    language: 'razor',
+    path: 'cshtml.tmLanguage.json',
+  },
+  'source.r': {
+    language: 'r',
+    path: 'r.tmLanguage.json',
+  },
+  'text.pug': {
+    language: 'jade',
+    path: 'pug.tmLanguage.json',
+  },
+  'source.powershell': {
+    language: 'powershell',
+    path: 'powershell.tmLanguage.json',
+  },
+  'source.perl': {
+    language: 'perl',
+    path: 'perl.tmLanguage.json',
+  },
+  'source.perl.6': {
+    language: 'perl6',
+    path: 'perl6.tmLanguage.json',
+  },
+  'text.html.php': {
+    language: 'php',
+    path: 'htmlphp.tmLanguage.json',
+  },
+  'source.php': {
+    language: 'php',
+    path: 'php.tmLanguage.json',
+  },
+  'source.objc': {
+    language: 'objective-c',
+    path: 'objective-c.tmLanguage.json',
+  },
+  'source.objcpp': {
+    language: 'objective-cpp',
+    path: 'objective-c++.tmLanguage.json',
+  },
+  'text.html.markdown': {
+    language: 'markdown',
+    path: 'markdown.tmLanguage.json',
+  },
+  'source.makefile': {
+    language: 'makefile',
+    path: 'make.tmLanguage.json',
+  },
+  'source.lua': {
+    language: 'lua',
+    path: 'lua.tmLanguage.json',
+  },
+  'text.log': {
+    language: 'log',
+    path: 'log.tmLanguage.json',
+  },
+  'source.css.less': {
+    language: 'less',
+    path: 'less.tmLanguage.json',
+  },
+  'source.java': {
+    language: 'java',
+    path: 'java.tmLanguage.json',
+  },
+  'source.json': {
+    language: 'json',
+    path: 'JSON.tmLanguage.json',
+  },
+  'source.json.comments': {
+    language: 'jsonc',
+    path: 'JSONC.tmLanguage.json',
+  },
+  'source.ini': {
+    language: 'properties',
+    path: 'ini.tmLanguage.json',
+  },
+  'text.html.handlebars': {
+    language: 'handlebars',
+    path: 'handlebars.tmLanguage.json',
+  },
+  'source.hlsl': {
+    language: 'hlsl',
+    path: 'hlsl.tmLanguage.json',
+  },
+  'source.groovy': {
+    language: 'groovy',
+    path: 'groovy.tmLanguage.json',
+  },
+  'source.go': {
+    language: 'go',
+    path: 'go.tmLanguage.json',
+  },
+  'source.fsharp': {
+    language: 'fsharp',
+    path: 'fsharp.tmLanguage.json',
+  },
+  'source.dockerfile': {
+    language: 'dockerfile',
+    path: 'docker.tmLanguage.json',
+  },
+  'source.coffee': {
+    language: 'coffeescript',
+    path: 'coffeescript.tmLanguage.json',
+  },
+  'source.python': {
+    language: 'python',
+    path: 'MagicPython.tmLanguage.json',
+  },
+  'source.c': {
+    language: 'c',
+    path: 'c.tmLanguage.json',
+  },
+  'source.cpp': {
+    language: 'cpp',
+    path: 'cpp.tmLanguage.json',
+  },
+  'source.cs': {
+    language: 'csharp',
+    path: 'csharp.tmLanguage.json',
+  },
+  'source.clojure': {
+    language: 'clojure',
+    path: 'clojure.tmLanguage.json',
+  },
+  'text.html.basic': {
+    language: 'html',
+    path: 'html.tmLanguage.json',
+  },
+  'source.js.jsx': {
+    language: 'javascriptreact',
+    path: 'JavaScriptReact.tmLanguage.json',
+  },
+  'source.js': {
+    language: 'javascript',
+    path: 'JavaScript.tmLanguage.json',
+  },
+  'source.css': {
+    language: 'css',
+    path: 'css.tmLanguage.json',
+  },
+  'source.ts': {
+    language: 'typescript',
+    path: 'TypeScript.tmLanguage.json',
+  },
+  'source.tsx': {
+    language: 'typescriptreact',
+    path: 'TypeScriptReact.tmLanguage.json',
+  },
+  'documentation.injection.js.jsx': {
+    language: 'jsonc',
+    path: 'jsonc.js.injection.tmLanguage.json',
+  },
+  'documentation.injection.ts.tsx': {
+    language: 'jsonc',
+    path: 'jsonc.ts.injection.tmLanguage.json',
+  },
+  'source.batchfile': {
+    language: 'bat',
+    path: 'batchfile.tmLanguage.json',
+  },
+  'source.julia': {
+    language: 'julia',
+    path: 'julia.tmLanguage.json',
+  },
+  'source.svelte': {
+    language: 'svelte',
+    path: 'svelte.tmLanguage.json',
+  },
+};
+
+export const BUILT_IN_LANGUAGE_DEFINITIONS: monaco.languages.ILanguageExtensionPoint[] = [
   {
     id: 'python',
     extensions: [
