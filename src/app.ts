@@ -15,6 +15,8 @@ import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
 import {emmetHTML, emmetCSS, emmetJSX} from 'emmet-monaco-es';
 import {BUILT_IN_GRAMMARS, BUILT_IN_LANGUAGE_DEFINITIONS, DemoScopeNameInfo} from './constants';
 import {fetchWrapper, loadVSCodeOnigurumWASM} from './utilities';
+// @ts-ignore
+import { initVimMode } from 'monaco-vim';
 
 (window as any).main = main;
 (window as any).changeTheme = changeTheme;
@@ -64,13 +66,12 @@ function setTheme(name: string, theme: any) {
 
   const themeData = {
     name: theme.name,
-    settings: {
-      ...theme.tokenColors,
+    settings: theme.tokenColors.concat([{
       settings: {
         foreground: theme.colors['editor.foreground'],
         background: theme.colors['editor.background'],
-      },
-    },
+      }
+    }])
   };
 
   provider.registry.setTheme(themeData);
@@ -183,6 +184,7 @@ async function main(
   });
 
   (window as any).editor = mainEditor;
+  (window as any).initVimMode = initVimMode;
   (window as any).applyListeners((window as any).editor);
   provider.injectCSS();
 }

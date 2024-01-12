@@ -12,6 +12,7 @@
   "dependencies": {
     "emmet-monaco-es": "^5.1.2",
     "monaco-editor": "https://github.com/thebaselab/monaco-editor-release#db5010dfc38d8229a7ba374f94b83a9138831f45",
+    "monaco-vim": "^0.4.1",
     "vscode-oniguruma": "1.5.1",
     "vscode-textmate": "7.0.1"
   },
