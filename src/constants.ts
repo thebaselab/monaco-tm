@@ -242,6 +242,10 @@ export const BUILT_IN_GRAMMARS: {[scopeName: string]: DemoScopeNameInfo} = {
     language: 'svelte',
     path: 'svelte.tmLanguage.json',
   },
+  'source.kotlin': {
+    language: 'kotlin',
+    path: 'kotlin.tmLanguage.json',
+  },
 };
 
 export const BUILT_IN_LANGUAGE_DEFINITIONS: monaco.languages.ILanguageExtensionPoint[] = [
@@ -774,4 +778,14 @@ export const BUILT_IN_LANGUAGE_DEFINITIONS: monaco.languages.ILanguageExtensionP
     aliases: ['Svelte', 'svelte'],
     extensions: ['.svelte'],
   },
+  {
+    id: 'kotlin',
+    aliases: [
+        'Kotlin'
+    ],
+    extensions: [
+        '.kt',
+        '.kts'
+    ]
+}
 ];
